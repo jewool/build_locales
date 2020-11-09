@@ -4,7 +4,7 @@ const config = {
   readFolder: './src/pages/',                    // 读取的目标文件夹
   output: '../src/locales/build/cn.ts',          // 输出目录
   suffix: 'tsx',                                 // 指定的文件后缀
-  component: ['FormItemEx','LocaleText'],        // 识别的目标目录
+  component: ['FormItemEx','LocaleText'],        // 识别的目标组件
   key: 'name',                                   // 国际化的key
   value: 'label',                                // 翻译后的值
 };
@@ -23,11 +23,14 @@ const execFun = async ()=>{
       const filteredList = res.filter((item) => {
         return JSON.stringify(item) != '{}';
       });
+
+      // console.log(filteredList)
       filteredList.forEach((item) => {
         Object.keys(item).forEach((key) => {
           TotalObj[key] = item[key];
         });
       });
+
       console.log(`>>>>>>开始写入文件：${(new Date() - startData)}ms`)
       localUtils.writeToFilePath(TotalObj,config.output);
     })
@@ -40,6 +43,3 @@ const execFun = async ()=>{
 }
 
 execFun()
-
-
-

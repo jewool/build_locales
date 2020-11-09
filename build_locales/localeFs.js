@@ -21,6 +21,7 @@ const writeToFilePath = (info, output) => {
 // 根据路径获取文件内容，识别文件内容，根据内容获取到对应的国际化对象
 const getFileLocalesObj = (path, config) => {
   return new Promise((resolve,reject) => {
+    let result = {}
     var buf = new Buffer.alloc(102400000);
     fs.open(path, 'r+', function (err, fd) {
       if (err) {
@@ -35,13 +36,15 @@ const getFileLocalesObj = (path, config) => {
             const component = config.component.join('|')
             // const reg = /<(FormItemEx|LocaleText)(.+?)>/ig;
             eval(  `var reg = /<(${component})(.+?)>/ig`);
+            // console.log(reg)
             let matchs = source.match(reg);
-            if (matchs) {
+            // 获取符合条件的标签列表
+            if (matchs&&matchs.length>0) {
               console.log(`>>>>>>文件路径：${path}\n>>>>>>共${matchs.length}个组件`)
-              let result = {}
               matchs.forEach(m => {
                 eval(  `var keyReg = /(${config.key}=\'|${config.key}=\")(.*?)(\'|\")/;`);
                 eval(  `var valueReg = /(${config.value}=\'|${config.value}=\")(.*?)(\'|\")/;`);
+
                 // const labelReg = /(label=\'|label=\")(.*?)(\'|\")/;
                 // let matchName = m.match(/(name=\'|name=\")(.*?)(\'|\")/);
                 // let matchLabel = m.match(/(label=\'|label=\")(.*?)(\'|\")/);
@@ -49,12 +52,17 @@ const getFileLocalesObj = (path, config) => {
                 let matchLabel = m.match(valueReg);
                 if (matchName && matchLabel) {
                   result[matchName[2]] = matchLabel[2];
-                  resolve(result);
-                } else {
-                  resolve({});
                 }
               })
             }else{
+              resolve({});
+            }
+            if (JSON.stringify(result)!=='{}'){
+              if (path.indexOf('AddWaybill/BasicForm/index.tsx')!=-1){
+                console.log(result)
+              }
+              resolve(result)
+            }else {
               resolve({});
             }
           }
