@@ -3,11 +3,12 @@ const path = require('path');
 
 //写入文件
 const writeToFilePath = (info, output) => {
+  console.log('outPut'+output);
   let time = new Date();
   try {
     let file = path.resolve(__dirname, output);
-    const str = `\nexport default ${JSON.stringify(info)}`
-    const result = str.replace(/,/g,",\n   ").replace(/{/g,"{\n   ").replace(/}/g,"\n}");
+    const str = `\nexport default${JSON.stringify(info)}`
+    const result = str.replace(/\",/g,"\",\n   ").replace(/t{/g,"t{\n   ").replace(/\"}/g,"\"\n}");
     // 异步写入数据到文件
     fs.writeFile(file, result, { encoding: 'utf8' }, (err) => {
       if (!err){
@@ -58,9 +59,6 @@ const getFileLocalesObj = (path, config) => {
               resolve({});
             }
             if (JSON.stringify(result)!=='{}'){
-              if (path.indexOf('AddWaybill/BasicForm/index.tsx')!=-1){
-                console.log(result)
-              }
               resolve(result)
             }else {
               resolve({});
@@ -76,5 +74,55 @@ const getFileLocalesObj = (path, config) => {
   });
 };
 
+
+
+
+
+// 根据路径获取文件内容，识别文件内容
+const getFileContent = (path, config) => {
+  return new Promise((resolve,reject) => {
+    const  result = [];
+    var buf = new Buffer.alloc(102400000);
+    fs.open(path, 'r+', function (err, fd) {
+      if (err) {
+        resolve({})
+      }
+      try {
+        fs.read(fd, buf, 0, buf.length, 0, function (err, bytes) {
+          if (err || bytes == 0) {
+            resolve({})
+          } else {
+            const source = buf.slice(0, bytes).toString(); //转为字符串
+            const keyValuesReg = /(\'|\")(.*?)(\'\,|\"\,)/ig;
+            let matchs = source.match(keyValuesReg);
+            if (matchs) {
+              matchs.forEach((item, index) => {
+                const ObjStr = item.split(':');
+                // const key = /(\')(.*?)(\'\:")/;
+                var reg = new RegExp( '\'|\"' , "g" )
+                var breakReg = new RegExp( '\n' , "g" )
+                var breakReg2 = new RegExp( /&nbsp;/ig , "g" )
+                const key = ObjStr[0]?ObjStr[0].replace(reg,'').trim():'';
+                const value = ObjStr[1]?ObjStr[1].replace(reg,'').replace(breakReg,'').replace(breakReg2,'').replace(',','').trim():'';
+                if (key&&value){
+                  const obj = {};
+                  obj[key] = value;
+                  result.push(obj);
+                }
+              })
+            }
+            resolve(result);
+          }
+        });
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }).catch(err=>{
+    console.log(JSON.stringify(err));
+  });
+};
+
 module.exports.writeToFilePath = writeToFilePath;
 module.exports.getFileLocalesObj = getFileLocalesObj;
+module.exports.getFileLocalesContent = getFileContent;
