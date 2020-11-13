@@ -9,7 +9,6 @@ const config = {
 };
 
 
-
 const execFun = async ()=>{
   let startData = new Date()
   // 获取项目所有的jsx路径
@@ -26,8 +25,6 @@ const execFun = async ()=>{
         return  total.concat(curr)
       },[]);
       let taskArray = getPartTransFun(result);
-      // console.log(JSON.stringify(taskArray))
-      // console.log('index>>>'+JSON.stringify(taskArray))
       let promiseArray = taskArray.map((item,index)=>{
         return  doTranslate(item.data,item.chart);
       })
@@ -41,8 +38,6 @@ const execFun = async ()=>{
           outPutFileObjectResult = {...outPutFileObjectResult,...item}
         })
         console.log(outPutFileObjectResult);
-        // console.log(config.outPutFolder[process.argv[2]])
-        // console.log(`>>>>>>开始写入文件：${(new Date() - startData)}ms`)
         localUtils.writeToFilePath(outPutFileObjectResult,config.outPutFolder[process.argv[2]]);
         // console.log(outPutFileObjectResult);
       })
@@ -79,7 +74,6 @@ const getPartTransFun =  (array)=>{
   }
 }
 
-
 // 获取翻译结果
 const doTranslate = (partArray,translateChart)=>{
   return new Promise(resolve => {
@@ -94,8 +88,5 @@ const doTranslate = (partArray,translateChart)=>{
     })
   })
 }
-
-
-
 
 execFun()
