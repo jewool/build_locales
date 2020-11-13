@@ -1,4 +1,93 @@
 
+###  web前端-国际化-自动翻译
+
+ant-desing-pro项目，上次完成了[自动识别组件，根据组件属性生成Zh_cn国际化对照文件](https://juejin.im/post/6891187663173337102)之后，又遇到一个问题，		怎么从中文自动翻译成其他语种？
+
+* 最终实现：
+  * package.json脚本配置，执行 npm run translate-us 即可自动翻译，并输出到指定目录
+    ```
+    "local": "node ./build_locales/index.js",
+    "translate-us": "node ./build_locales/translate.js us",
+    "translate-br": "node ./build_locales/translate.js br",
+    "translate-tw": "node ./build_locales/translate.js tw",
+    ```
+
+  * 读取zh-CN文件夹所有配置，生成的其他语种文件。
+
+    ![](https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ea6b2c561b254d0799fd8130707e00d3~tplv-k3u1fbpfcp-watermark.image)
+
+
+  * 自定义配置
+
+    ```
+    const config = {
+      readFolder: './src/locales/zh-CN',                   
+      suffix: 'ts',            			 	   
+      outPutFolder: {'us':'../src/locales/en-US/build.ts',
+                     'br':'../src/locales/pt-BR/build.ts',
+                     'tw':'../src/locales/zh-TW/build.ts'},  
+      languageKeyMap: {'us':'en','br':'pt','tw':'zh-tw'},   
+    };
+    ```
+    配置说明：  
+    * readFolder:读取该目录下的所有配置；
+    * suffix：读取文件的后缀
+    * outPutFolder：对应语种的输出目录
+	* languageKeyMap：package.json 中脚本配置对应的 google-translate-api 语种
+		
+
+* 实现原理：
+
+  * 读取 readFolder配置文件夹下面所有指定后缀的文件，如下格式：
+    ![](https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ab1fd89437714785993fdabb9b670889~tplv-k3u1fbpfcp-watermark.image)
+     正则匹配到对应的key,value。
+    
+  *  将对应的中文，使用 “|” 拼接在一起，调用 [google-translate-api](https://github.com/matheuss/google-translate-api) 进行翻译 
+  
+  		`用 “|” 拼接翻译是为了防止调用次数过多被google封IP`
+
+  * 将所有翻译结果输出，写入到文件中，写入结果如下。
+	![](https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2c6c9253f13d486cbb12e0c0eba10139~tplv-k3u1fbpfcp-watermark.image)
+  * 将build.ts 导入 对应的语种文件。
+  
+* 如何使用：
+	
+   * https://github.com/jewool/build_locales 下载文件夹，放到ant-design-pro根目录(其他框架可自行改造)
+    
+   	 ![](https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/1793dc63af044cbca8975efa059721b7~tplv-k3u1fbpfcp-watermark.image)
+  
+  * 修改配置
+  
+  	![](https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/3ff3f83af253443c9ed848c96517be28~tplv-k3u1fbpfcp-watermark.image)
+  
+  * package.json 配置脚本
+  
+  	![](https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/16486e3ae21342c58f43cbb9ff074291~tplv-k3u1fbpfcp-watermark.image)
+ 
+  * 执行脚本，生成文件
+  
+  	npm run translate-us<br/>
+    npm run translate-br<br/>
+    npm run translate-tw<br/>
+    
+    npm run translate-xxx		<br/>// 其他语种请根据该文件，自行添加配置
+  
+ 	 ![](https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2d61cca1c41c4af89892a6e9b542985a~tplv-k3u1fbpfcp-watermark.image)
+     
+  
+  链接：
+  
+  [脚本地址https://github.com/jewool/build_locales](https://github.com/jewool/build_locales)
+  
+   [根据组件生成中文对照：https://juejin.im/post/6891187663173337102](https://juejin.im/post/6891187663173337102)
+ 
+ 	[翻译工具：https://github.com/matheuss/google-translate-api](https://github.com/matheuss/google-translate-api)
+ 
+    
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 
  ### 1. 背景
  
